@@ -1,57 +1,68 @@
-import {useState, useEffect, useMemo} from "react";
+import {useState, useEffect} from "react";
 import Table from '../table'
+import TaskForm from '../taskForm'
+import { getTasks, saveTask, deleteTask } from '../../services/tasks-service';
 
-import Navbar from "../navbar";
-import TasksService from "../../services/tasks-service";
-import EmployeesService from "../../services/employees-service";
-import ProjectsService from "../../services/projects-service";
+// import Navbar from "../navbar";
+// import TasksService from "../../services/tasks-service";
+// import EmployeesService from "../../services/employees-service";
+// import ProjectsService from "../../services/projects-service";
 
 import "./app.css";
 
-export default function App(props) {
+export default function App() {
+    const [data, setData] = useState([])
 
-    const [table,setTable]=useState([]);
-
-    const tasksService = useMemo(() => new TasksService(), []);
-    const projectsService = useMemo(() => new ProjectsService(), []);
-    const employeesService = useMemo(() => new EmployeesService(), []);
-
-    const [navbarItem, setNavbarItem] = useState("projects");
-
-    const [projectsData, setProjectsData] = useState([]);
-    const [employeesData, setEmployeesData] = useState([]);
-
-    const [tasksData, setTasksData] = useState([]);
-
-    useEffect(async function () {
-        console.log(navbarItem);
-        if (navbarItem === "projects") {
-            const projectsDataLoaded = await projectsService.getEmployees();
-            setProjectsData(projectsDataLoaded);
-            setTable(projectsData);
+    useEffect(() => {
+        const fetchAPI = async () => {
+            setData(await getTasks())
         }
-       /* else if (navbarItem === "tasks")
-            /!*const tasksDataLoaded = tasksService.getTasks();
-        setTasksData(tasksDataLoaded);*!/
-            setTable(tasksData)
-        }*/
-        else {
-            const employeesDataLoaded = await employeesService.getEmployees();
-            setEmployeesData(employeesDataLoaded);
-            setTable(employeesData);
-        }
+        fetchAPI()
+    }, [setData]);
 
-    }, [navbarItem]);
-
-    const handleNavbarItemChange = (event) => {
-        const navbarItemValue = event.target.value;
-        setNavbarItem(navbarItemValue);
+    const dlt = (id) => {
+        console.log(id)
+        console.log(deleteTask(id))
+        
     }
 
     return (
         <div className="container">
-            <Navbar navbarItem={navbarItem} setNavbarItem={handleNavbarItemChange}/>
-            <Table data={table}/>
+            <h1>ADD TASK</h1>
+            <TaskForm change={saveTask} />
+            <div className="Card"
+                style={{
+                    opacity: "0.2",
+                    margin: "0",
+                    borderRadius: "0"
+                }}
+            >
+                    <div
+                        style={{
+                            width: "20px"
+                        }}
+                    >id </div>
+                    <div>name</div>
+                    <div
+                        style={{
+                            width: "60px"
+                        }}
+                    >hours</div>
+                    <div>description</div>
+                    <div
+                        style={{
+                            width: "120px"
+                        }}
+                    >project</div>
+                    <div>status</div>
+                    <div
+                        style={{
+                            width: "90px",
+                            
+                        }}
+                    >functions </div>
+                </div>
+            <Table data={data} dlt={dlt}/>
         </div>
     );
 }
